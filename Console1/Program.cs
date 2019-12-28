@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Console1
 {
@@ -16,6 +17,7 @@ namespace Console1
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
 
             Person person = new Person { Name = "Tom" };
             Console.WriteLine(person.GetType());    // Person
@@ -45,19 +47,69 @@ namespace Console1
 
 
 
-            try
+            // создаем банковский счет
+            Account account = new Account(200);
+            // Добавляем в делегат ссылку на метод Show_Message
+            // а сам делегат передается в качестве параметра метода RegisterHandler
+            account.RegisterHandler(new Account.AccountStateHandler(Show_Message));
+            //THE SAME
+            //account.RegisterHandler(Show_Message);
+
+            // Два раза подряд пытаемся снять деньги
+            account.Withdraw(100);
+            account.Withdraw(150);
+            Console.ReadLine();
+        }
+
+        private static void Show_Message(String message)
+        {
+            Console.WriteLine(message);
+        }
+    }
+
+    class Account
+    {
+        // Объявляем делегат
+        public delegate void AccountStateHandler(string message);
+        // Создаем переменную делегата
+        AccountStateHandler _del;
+
+        // Регистрируем делегат
+        public void RegisterHandler(AccountStateHandler del)
+        {
+            _del = del;
+        }
+
+        int _sum; // Переменная для хранения суммы
+
+        public Account(int sum)
+        {
+            _sum = sum;
+        }
+
+        public int CurrentSum
+        {
+            get { return _sum; }
+        }
+
+        public void Put(int sum)
+        {
+            _sum += sum;
+        }
+
+        public void Withdraw(int sum)
+        {
+            if (sum <= _sum)
             {
-                int d5 = 0;
-                int f = d5 / 0;
+                _sum -= sum;
+
+                if (_del != null)
+                    _del($"Сумма {sum} снята со счета");
             }
-            //catch (DivideByZeroException ex)
-            catch (ArgumentException ex)
+            else
             {
-                Console.WriteLine($"Catch in Main : {ex.Message}");
-            }
-            finally
-            {
-                Console.WriteLine("Finally in Main");
+                if (_del != null)
+                    _del("Недостаточно денег на счете");
             }
         }
     }
