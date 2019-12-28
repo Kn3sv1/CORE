@@ -42,6 +42,23 @@ namespace Console1
             //4 = 100 | 001 = 5 (101)
             int k = a | b;
             Console.WriteLine($"k={k}");
+
+
+
+            try
+            {
+                int d5 = 0;
+                int f = d5 / 0;
+            }
+            //catch (DivideByZeroException ex)
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Catch in Main : {ex.Message}");
+            }
+            finally
+            {
+                Console.WriteLine("Finally in Main");
+            }
         }
     }
 }
